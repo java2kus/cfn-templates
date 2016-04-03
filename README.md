@@ -10,35 +10,35 @@ The infrastructure, resources, and application into three templates:
 
 ## Template sections
 ```json
-    {
-      "AWSTemplateFormatVersion" : "version date",
-    
-      "Description" : "JSON string",
-    
-      "Metadata" : {
-        //template metadata
-      },
-    
-      "Parameters" : {
-        //set of parameters
-      },
-    
-      "Mappings" : {
-        //set of mappings
-      },
-    
-      "Conditions" : {
-        //set of conditions
-      },
-    
-      "Resources" : {
-        //set of resources
-      },
-    
-      "Outputs" : {
-        //set of outputs
-      }
-    }
+{
+  "AWSTemplateFormatVersion" : "version date",
+
+  "Description" : "JSON string",
+
+  "Metadata" : {
+    template metadata
+  },
+
+  "Parameters" : {
+    set of parameters
+  },
+
+  "Mappings" : {
+    set of mappings
+  },
+
+  "Conditions" : {
+    set of conditions
+  },
+
+  "Resources" : {
+    set of resources
+  },
+
+  "Outputs" : {
+    set of outputs
+  }
+}
 ```
 
 ## References
