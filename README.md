@@ -44,6 +44,6 @@ The infrastructure, resources, and application into three templates:
 ## References
 - [AWS CloudFormation Best Practices](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html "AWS CloudFormation Best Practices")
 - [Template Anatomy](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html "Template Anatomy")
-- item
-
+- [Sample Templates](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-sample-templates.html "Sample Templates")
+- [Modeling an Elastic Beanstalk Application and its Dependencies in CloudFormation](https://blogs.aws.amazon.com/application-management/post/Tx2DUJYZVBMJ92J/Part-1-Develop-Deploy-and-Manage-for-Scale-with-Elastic-Beanstalk-and-CloudForma "Modeling an Elastic Beanstalk Application and its Dependencies in CloudFormation")
 
