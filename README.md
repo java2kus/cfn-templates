@@ -9,7 +9,7 @@ The infrastructure, resources, and application into three templates:
 3. application - stack to define the application and environment that runs our application.  This stack depends on the outputs provided by the resources stack.
 
 ## Template sections
-```json
+```javascript
 {
   "AWSTemplateFormatVersion" : "version date",
 
