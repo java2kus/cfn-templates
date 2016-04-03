@@ -69,7 +69,7 @@
     "SubnetTemplate": {
       "Type": "String",
       "Description": "CF Template URL for creating Public/Private Subnets and NAT ASGs",
-      "Default": "https://s3.amazonaws.com/aptus-health-cfn-templates/vpc/vpc_subnet.json"
+      "Default": "vpc/vpc_subnet.json"
     }
   },
   "Conditions": {

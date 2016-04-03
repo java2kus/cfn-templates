@@ -103,6 +103,7 @@
 
   },
   "Outputs" : {
-    "RouteTableID": { "Description": "Routing Table ID", "Value": { "Ref" : "PrivateRouteTable" } }
+    "RouteTableID": { "Description": "Routing Table ID", "Value": { "Ref" : "PrivateRouteTable" } },
+    "SomeOutputId": {}
   }
 }
