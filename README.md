@@ -16,27 +16,27 @@ The infrastructure, resources, and application into three templates:
   "Description" : "JSON string",
 
   "Metadata" : {
-    template metadata
+    //template metadata
   },
 
   "Parameters" : {
-    set of parameters
+    //set of parameters
   },
 
   "Mappings" : {
-    set of mappings
+    //set of mappings
   },
 
   "Conditions" : {
-    set of conditions
+    //set of conditions
   },
 
   "Resources" : {
-    set of resources
+    //set of resources
   },
 
   "Outputs" : {
-    set of outputs
+    //set of outputs
   }
 }
 ```
