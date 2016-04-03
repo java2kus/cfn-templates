@@ -1,0 +1,108 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "(Sub Component) Private/Public Subnet Creator with NAT ASGs",
+  "Parameters" : {
+    "AZ": { "Type": "String" },
+
+    "PublicSubnetCidr": { "Type": "String", "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)" },
+    "PublicSubnetName": { "Type": "String" },
+    "PublicRouteTableID": { "Type": "String" },
+
+    "PrivateSubnetCidr": { "Type": "String", "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)" },
+    "PrivateSubnetName": { "Type": "String" },
+    "PrivateRouteTableName": { "Type": "String" },
+
+    "VpcID": { "Type": "AWS::EC2::VPC::Id" }
+  },
+
+  "Resources" : {
+
+    "PublicSubnet" : { "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VpcID" },
+        "CidrBlock" : { "Ref": "PublicSubnetCidr" },
+        "AvailabilityZone" : { "Ref": "AZ" },
+        "Tags" : [
+          {"Key" : "Name", "Value" : { "Ref": "PublicSubnetName" } },
+          {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          {"Key" : "network", "Value" : "public" }
+        ]
+      }
+    },
+
+    "PublicSubnetRouteTableAssociationA" : { "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PublicSubnet" },
+        "RouteTableId" : { "Ref" : "PublicRouteTableID" }
+      }
+    },
+
+    "PrivateRouteTable" : { "Type": "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : {"Ref": "VpcID"},
+        "Tags" : [
+          {"Key": "Name", "Value" : { "Ref": "PrivateRouteTableName" } },
+          {"Key": "Application", "Value" : { "Ref": "AWS::StackId"} },
+          {"Key": "network", "Value": "private" }
+        ]
+      }
+    },
+
+    "PrivateSubnet" : { "Type" : "AWS::EC2::Subnet",
+      "Properties" : { "VpcId" : { "Ref" : "VpcID" },
+        "CidrBlock" : { "Ref": "PrivateSubnetCidr" },
+        "AvailabilityZone" : { "Ref": "AZ" },
+        "Tags" : [
+          {"Key" : "Name", "Value" : { "Ref": "PrivateSubnetName" } },
+          {"Key" : "Application", "Value" : { "Ref" : "AWS::StackId"} },
+          {"Key" : "network", "Value" : "private" }
+        ]
+      }
+    },
+
+    "PrivateSubnetRouteTableAssociation" : { "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PrivateSubnet" },
+        "RouteTableId" : { "Ref" : "PrivateRouteTable" }
+      }
+    },
+
+    "NatGatewayEIP" : {
+      "Type" : "AWS::EC2::EIP",
+      "Properties" : {
+        "Domain" : "vpc"
+      }
+    },
+
+    "NatGateway" : {
+      "Type" : "AWS::EC2::NatGateway",
+      "DependsOn": "NatGatewayEIP",
+      "Properties" : {
+        "AllocationId" : { "Fn::GetAtt" : ["NatGatewayEIP", "AllocationId"]},
+        "SubnetId" : { "Ref" : "PublicSubnet" }
+      }
+    },
+
+    "NatRoute" : {
+      "Type" : "AWS::EC2::Route",
+      "DependsOn": [ "NatGateway", "PrivateRouteTable" ],
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "PrivateRouteTable" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "NatGatewayId" : { "Ref" : "NatGateway" }
+      }
+    },
+
+    "S3Endpoint" : { "Type" : "AWS::EC2::VPCEndpoint",
+      "Properties" : {
+        "ServiceName" : { "Fn::Join": [ "", [ "com.amazonaws.", { "Ref": "AWS::Region" }, ".s3" ] ] },
+        "VpcId" : {"Ref" : "VpcID"},
+        "RouteTableIds" : [ { "Ref": "PrivateRouteTable" } ]
+      }
+    }
+
+  },
+  "Outputs" : {
+    "RouteTableID": { "Description": "Routing Table ID", "Value": { "Ref" : "PrivateRouteTable" } }
+  }
+}

@@ -1,0 +1,1017 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Standard VPC Design: Private/Public Subnets with NAT Instances in each Private Subnet.",
+  "Parameters": {
+    "VpcName": {
+      "Description": "Name of the VPC - Used to dynamically name the VPC, IGW, Routing Tables and Subnets.",
+      "Type": "String",
+      "MinLength": "3",
+      "MaxLength": "25",
+      "ConstraintDescription": "Must be in ALL CAPS with only DASHES as the separator. Examples: DEV-ECS1, US1, STAGING-US1.",
+      "AllowedPattern": "^([A-Z-\\d]+)"
+    },
+    "VpcCidr": {
+      "Description": "The whole VPC CIDR Block.",
+      "Type": "String",
+      "ConstraintDescription": "Supports subnet sizes of /16 to /22 only. Input must be a correct CIDR, such as: 10.0.5.0/16",
+      "AllowedPattern": "^((\\d)+.){3}(0)\\/(16|17|18|19|20|21|22)"
+    },
+    "VpcPublicSubnetA": {
+      "Description": "Public Subnet (A) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPublicSubnetB": {
+      "Description": "Public Subnet (B) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPublicSubnetC": {
+      "Description": "Public Subnet (C) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPublicSubnetD": {
+      "Description": "Public Subnet (D) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPublicSubnetE": {
+      "Description": "Public Subnet (E) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetA": {
+      "Description": "Private Subnet (A) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetB": {
+      "Description": "Private Subnet (B) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetC": {
+      "Description": "Private Subnet (C) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetD": {
+      "Description": "Private Subnet (D) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetE": {
+      "Description": "Private Subnet (E) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "SubnetTemplate": {
+      "Type": "String",
+      "Description": "CF Template URL for creating Public/Private Subnets and NAT ASGs",
+      "Default": "https://s3.amazonaws.com/aptus-health-cfn-templates/vpc/vpc_subnet.json"
+    }
+  },
+  "Conditions": {
+    "CreateSubnetA": {
+      "Fn::And": [
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "VpcPublicSubnetA"
+                },
+                ""
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "VpcPrivateSubnetA"
+                },
+                ""
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "CreateSubnetB": {
+      "Fn::And": [
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "VpcPublicSubnetB"
+                },
+                ""
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "VpcPrivateSubnetB"
+                },
+                ""
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "CreateSubnetC": {
+      "Fn::And": [
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "VpcPublicSubnetC"
+                },
+                ""
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "VpcPrivateSubnetC"
+                },
+                ""
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "CreateSubnetD": {
+      "Fn::And": [
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "VpcPublicSubnetD"
+                },
+                ""
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "VpcPrivateSubnetD"
+                },
+                ""
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "CreateSubnetE": {
+      "Fn::And": [
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "VpcPublicSubnetE"
+                },
+                ""
+              ]
+            }
+          ]
+        },
+        {
+          "Fn::Not": [
+            {
+              "Fn::Equals": [
+                {
+                  "Ref": "VpcPrivateSubnetE"
+                },
+                ""
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "Mappings": {
+    "RegionMap": {
+      "us-west-1": {
+        "TrustIPCIDR": "10.16.0.0/20"
+      },
+      "us-west-2": {
+        "TrustIPCIDR": "10.32.0.0/20"
+      },
+      "us-east-1": {
+        "TrustIPCIDR": "10.48.0.0/20"
+      },
+      "eu-west-1": {
+        "TrustIPCIDR": "10.64.0.0/20"
+      },
+      "eu-central-1": {
+        "TrustIPCIDR": "10.80.0.0/20"
+      },
+      "ap-northeast-1": {
+        "TrustIPCIDR": "10.96.0.0/20"
+      }
+    }
+  },
+  "Resources": {
+    "VPC": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": {
+          "Ref": "VpcCidr"
+        },
+        "EnableDnsSupport": true,
+        "EnableDnsHostnames": true,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "VpcName"
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "network",
+            "Value": "public"
+          }
+        ]
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "cc0bd6da-176d-4ba1-8456-12d184b43c9b"
+        }
+      }
+    },
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Metadata": {
+        "Description": "Provides Internet Access (1-to-1 NATing) for the Public Subnets.",
+        "AWS::CloudFormation::Designer": {
+          "id": "cc8af15d-e484-49f7-872c-d82b4986c257"
+        }
+      },
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Ref": "VpcName"
+                  },
+                  "-IGW"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "network",
+            "Value": "public"
+          }
+        ]
+      }
+    },
+    "AttachGateway": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "9472b39a-0e63-4b31-b94d-319d84fe69f6"
+        }
+      }
+    },
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Metadata": {
+        "Description": "A single Routing Table for all Public Subnets.",
+        "AWS::CloudFormation::Designer": {
+          "id": "8e989f98-8299-4051-a752-bf24fed6bda8"
+        }
+      },
+      "Properties": {
+        "VpcId": {
+          "Ref": "VPC"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Ref": "VpcName"
+                  },
+                  "-PUBLIC-RT"
+                ]
+              ]
+            }
+          },
+          {
+            "Key": "Application",
+            "Value": {
+              "Ref": "AWS::StackId"
+            }
+          },
+          {
+            "Key": "network",
+            "Value": "public"
+          }
+        ]
+      }
+    },
+    "PublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "Metadata": {
+        "Description": "Default traffic flows through the Internet Gateway.",
+        "AWS::CloudFormation::Designer": {
+          "id": "9ed6f1a4-f624-4046-9d4e-9bbb895e902d"
+        }
+      },
+      "DependsOn": "AttachGateway",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "AllowDefaultSGSSHThroughDefaultSG": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Metadata": {
+        "Description": "Allow SSH traffic from default SG."
+      },
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "VPC",
+            "DefaultSecurityGroup"
+          ]
+        },
+        "GroupId": {
+          "Fn::GetAtt": [
+            "VPC",
+            "DefaultSecurityGroup"
+          ]
+        },
+        "FromPort": "22",
+        "ToPort": "22",
+        "IpProtocol": "tcp"
+      }
+    },
+    "AllowTrustSSHThroughDefaultSG": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Metadata": {
+        "Description": "Allow SSH traffic from trusted IP Space."
+      },
+      "Properties": {
+        "CidrIp": {
+          "Fn::FindInMap": [
+            "RegionMap",
+            {
+              "Ref": "AWS::Region"
+            },
+            "TrustIPCIDR"
+          ]
+        },
+        "GroupId": {
+          "Fn::GetAtt": [
+            "VPC",
+            "DefaultSecurityGroup"
+          ]
+        },
+        "FromPort": "22",
+        "ToPort": "22",
+        "IpProtocol": "tcp"
+      }
+    },
+    "AllowDefaultSGICMPThroughDefaultSG": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Metadata": {
+        "Description": "Allow ICMP traffic from default SG."
+      },
+      "Properties": {
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "VPC",
+            "DefaultSecurityGroup"
+          ]
+        },
+        "GroupId": {
+          "Fn::GetAtt": [
+            "VPC",
+            "DefaultSecurityGroup"
+          ]
+        },
+        "FromPort": "-1",
+        "ToPort": "-1",
+        "IpProtocol": "icmp"
+      }
+    },
+    "AllowTrustICMPThroughDefaultSG": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Metadata": {
+        "Description": "Allow ICMP traffic from trusted IP Space."
+      },
+      "Properties": {
+        "CidrIp": {
+          "Fn::FindInMap": [
+            "RegionMap",
+            {
+              "Ref": "AWS::Region"
+            },
+            "TrustIPCIDR"
+          ]
+        },
+        "GroupId": {
+          "Fn::GetAtt": [
+            "VPC",
+            "DefaultSecurityGroup"
+          ]
+        },
+        "FromPort": "-1",
+        "ToPort": "-1",
+        "IpProtocol": "icmp"
+      }
+    },
+    "SubnetA": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Condition": "CreateSubnetA",
+      "DependsOn": "PublicRoute",
+      "Properties": {
+        "TemplateURL": {
+          "Ref": "SubnetTemplate"
+        },
+        "Parameters": {
+          "AZ": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "a"
+              ]
+            ]
+          },
+          "PublicSubnetCidr": {
+            "Ref": "VpcPublicSubnetA"
+          },
+          "PublicSubnetName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PUBLIC-SN-1A"
+              ]
+            ]
+          },
+          "PublicRouteTableID": {
+            "Ref": "PublicRouteTable"
+          },
+          "PrivateSubnetCidr": {
+            "Ref": "VpcPrivateSubnetA"
+          },
+          "PrivateSubnetName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PRIVATE-SN-1A"
+              ]
+            ]
+          },
+          "PrivateRouteTableName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PRIVATE-RT-1A"
+              ]
+            ]
+          },
+          "VpcID": {
+            "Ref": "VPC"
+          }
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "a4a399fc-2164-487e-9a0f-c2865cc28a2c"
+        }
+      }
+    },
+    "SubnetB": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Condition": "CreateSubnetB",
+      "DependsOn": "PublicRoute",
+      "Properties": {
+        "TemplateURL": {
+          "Ref": "SubnetTemplate"
+        },
+        "Parameters": {
+          "AZ": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "b"
+              ]
+            ]
+          },
+          "PublicSubnetCidr": {
+            "Ref": "VpcPublicSubnetB"
+          },
+          "PublicSubnetName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PUBLIC-SN-1B"
+              ]
+            ]
+          },
+          "PublicRouteTableID": {
+            "Ref": "PublicRouteTable"
+          },
+          "PrivateSubnetCidr": {
+            "Ref": "VpcPrivateSubnetB"
+          },
+          "PrivateSubnetName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PRIVATE-SN-1B"
+              ]
+            ]
+          },
+          "PrivateRouteTableName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PRIVATE-RT-1B"
+              ]
+            ]
+          },
+          "VpcID": {
+            "Ref": "VPC"
+          }
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "b85ceada-8d8a-40dd-ad22-4a8c09a7e19b"
+        }
+      }
+    },
+    "SubnetC": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Condition": "CreateSubnetC",
+      "DependsOn": "PublicRoute",
+      "Properties": {
+        "TemplateURL": {
+          "Ref": "SubnetTemplate"
+        },
+        "Parameters": {
+          "AZ": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "c"
+              ]
+            ]
+          },
+          "PublicSubnetCidr": {
+            "Ref": "VpcPublicSubnetC"
+          },
+          "PublicSubnetName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PUBLIC-SN-1C"
+              ]
+            ]
+          },
+          "PublicRouteTableID": {
+            "Ref": "PublicRouteTable"
+          },
+          "PrivateSubnetCidr": {
+            "Ref": "VpcPrivateSubnetC"
+          },
+          "PrivateSubnetName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PRIVATE-SN-1C"
+              ]
+            ]
+          },
+          "PrivateRouteTableName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PRIVATE-RT-1C"
+              ]
+            ]
+          },
+          "VpcID": {
+            "Ref": "VPC"
+          }
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "e272bfb3-c397-4989-94ad-d480edfadd9e"
+        }
+      }
+    },
+    "SubnetD": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Condition": "CreateSubnetD",
+      "DependsOn": "PublicRoute",
+      "Properties": {
+        "TemplateURL": {
+          "Ref": "SubnetTemplate"
+        },
+        "Parameters": {
+          "AZ": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "d"
+              ]
+            ]
+          },
+          "PublicSubnetCidr": {
+            "Ref": "VpcPublicSubnetD"
+          },
+          "PublicSubnetName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PUBLIC-SN-1D"
+              ]
+            ]
+          },
+          "PublicRouteTableID": {
+            "Ref": "PublicRouteTable"
+          },
+          "PrivateSubnetCidr": {
+            "Ref": "VpcPrivateSubnetD"
+          },
+          "PrivateSubnetName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PRIVATE-SN-1D"
+              ]
+            ]
+          },
+          "PrivateRouteTableName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PRIVATE-RT-1D"
+              ]
+            ]
+          },
+          "VpcID": {
+            "Ref": "VPC"
+          }
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "772ad920-2097-4124-a1eb-48c2df6cf887"
+        }
+      }
+    },
+    "SubnetE": {
+      "Type": "AWS::CloudFormation::Stack",
+      "Condition": "CreateSubnetE",
+      "DependsOn": "PublicRoute",
+      "Properties": {
+        "TemplateURL": {
+          "Ref": "SubnetTemplate"
+        },
+        "Parameters": {
+          "AZ": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "AWS::Region"
+                },
+                "e"
+              ]
+            ]
+          },
+          "PublicSubnetCidr": {
+            "Ref": "VpcPublicSubnetE"
+          },
+          "PublicSubnetName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PUBLIC-SN-1E"
+              ]
+            ]
+          },
+          "PublicRouteTableID": {
+            "Ref": "PublicRouteTable"
+          },
+          "PrivateSubnetCidr": {
+            "Ref": "VpcPrivateSubnetE"
+          },
+          "PrivateSubnetName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PRIVATE-SN-1E"
+              ]
+            ]
+          },
+          "PrivateRouteTableName": {
+            "Fn::Join": [
+              "",
+              [
+                {
+                  "Ref": "VpcName"
+                },
+                "-PRIVATE-RT-1E"
+              ]
+            ]
+          },
+          "VpcID": {
+            "Ref": "VPC"
+          }
+        }
+      },
+      "Metadata": {
+        "AWS::CloudFormation::Designer": {
+          "id": "6bf8013d-11a5-4802-96c8-773ddb1426e9"
+        }
+      }
+    }
+  },
+  "Metadata": {
+    "AWS::CloudFormation::Designer": {
+      "cc8af15d-e484-49f7-872c-d82b4986c257": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 540,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": []
+      },
+      "cc0bd6da-176d-4ba1-8456-12d184b43c9b": {
+        "size": {
+          "width": 420,
+          "height": 420
+        },
+        "position": {
+          "x": 60,
+          "y": 90
+        },
+        "z": 1,
+        "embeds": [
+          "8e989f98-8299-4051-a752-bf24fed6bda8"
+        ]
+      },
+      "8e989f98-8299-4051-a752-bf24fed6bda8": {
+        "size": {
+          "width": 240,
+          "height": 240
+        },
+        "position": {
+          "x": 90,
+          "y": 150
+        },
+        "z": 2,
+        "parent": "cc0bd6da-176d-4ba1-8456-12d184b43c9b",
+        "embeds": [
+          "9ed6f1a4-f624-4046-9d4e-9bbb895e902d"
+        ]
+      },
+      "9472b39a-0e63-4b31-b94d-319d84fe69f6": {
+        "source": {
+          "id": "cc8af15d-e484-49f7-872c-d82b4986c257"
+        },
+        "target": {
+          "id": "cc0bd6da-176d-4ba1-8456-12d184b43c9b"
+        },
+        "z": 1
+      },
+      "9ed6f1a4-f624-4046-9d4e-9bbb895e902d": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 120,
+          "y": 210
+        },
+        "z": 3,
+        "parent": "8e989f98-8299-4051-a752-bf24fed6bda8",
+        "embeds": [],
+        "references": [
+          "cc8af15d-e484-49f7-872c-d82b4986c257"
+        ],
+        "dependson": [
+          "9472b39a-0e63-4b31-b94d-319d84fe69f6"
+        ]
+      },
+      "6bf8013d-11a5-4802-96c8-773ddb1426e9": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 540,
+          "y": 210
+        },
+        "z": 1,
+        "embeds": [],
+        "dependson": [
+          "9ed6f1a4-f624-4046-9d4e-9bbb895e902d"
+        ],
+        "isrelatedto": [
+          "8e989f98-8299-4051-a752-bf24fed6bda8",
+          "cc0bd6da-176d-4ba1-8456-12d184b43c9b"
+        ]
+      },
+      "772ad920-2097-4124-a1eb-48c2df6cf887": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 540,
+          "y": 330
+        },
+        "z": 1,
+        "embeds": [],
+        "dependson": [
+          "9ed6f1a4-f624-4046-9d4e-9bbb895e902d"
+        ],
+        "isrelatedto": [
+          "8e989f98-8299-4051-a752-bf24fed6bda8",
+          "cc0bd6da-176d-4ba1-8456-12d184b43c9b"
+        ]
+      },
+      "e272bfb3-c397-4989-94ad-d480edfadd9e": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 540,
+          "y": 450
+        },
+        "z": 1,
+        "embeds": [],
+        "dependson": [
+          "9ed6f1a4-f624-4046-9d4e-9bbb895e902d"
+        ],
+        "isrelatedto": [
+          "8e989f98-8299-4051-a752-bf24fed6bda8",
+          "cc0bd6da-176d-4ba1-8456-12d184b43c9b"
+        ]
+      },
+      "b85ceada-8d8a-40dd-ad22-4a8c09a7e19b": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 60,
+          "y": 570
+        },
+        "z": 1,
+        "embeds": [],
+        "dependson": [
+          "9ed6f1a4-f624-4046-9d4e-9bbb895e902d"
+        ],
+        "isrelatedto": [
+          "8e989f98-8299-4051-a752-bf24fed6bda8",
+          "cc0bd6da-176d-4ba1-8456-12d184b43c9b"
+        ]
+      },
+      "a4a399fc-2164-487e-9a0f-c2865cc28a2c": {
+        "size": {
+          "width": 60,
+          "height": 60
+        },
+        "position": {
+          "x": 180,
+          "y": 570
+        },
+        "z": 1,
+        "embeds": [],
+        "dependson": [
+          "9ed6f1a4-f624-4046-9d4e-9bbb895e902d"
+        ],
+        "isrelatedto": [
+          "8e989f98-8299-4051-a752-bf24fed6bda8",
+          "cc0bd6da-176d-4ba1-8456-12d184b43c9b"
+        ]
+      }
+    }
+  }
+}
