@@ -9,7 +9,7 @@ The infrastructure, resources, and application into three templates:
 3. application - stack to define the application and environment that runs our application.  This stack depends on the outputs provided by the resources stack.
 
 ## Template sections
-
+```json
     {
       "AWSTemplateFormatVersion" : "version date",
     
@@ -39,7 +39,7 @@ The infrastructure, resources, and application into three templates:
         set of outputs
       }
     }
-
+```
 
 ## References
 - [AWS CloudFormation Best Practices](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/best-practices.html "AWS CloudFormation Best Practices")
