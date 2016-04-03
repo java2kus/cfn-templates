@@ -1,5 +1,5 @@
 # cfn-templates
-AWS Cloudformation Templates - Infrastructure as Code
+AWS CloudFormation Templates - Infrastructure as Code
 
 ## Overview
 The infrastructure, resources, and application into three templates:
