@@ -1,16 +1,11 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Provisions substacks.",
+  "Description": "Provisions sub-stacks to compose an environment based on vpc, resources, and applications..",
   "Parameters": {
-    "AssetsBucketPrefix": {
-      "Description": "The prefix of the S3 bucket where the application WAR is located. A region-specific suffix will be appended, e.g. AssetsBucketPrefix-us-east-1.",
-      "Type": "String",
-      "Default": "cfn-templates-dev"
-    },
     "VPCTemplateKey": {
       "Description": "The key of the template for the VPC scaffold substack",
       "Type": "String",
-      "Default": "vpc/vpc.json"
+      "Default": "https://s3.amazonaws.com/cfn-templates-dev/vpc/vpc.json"
     },
     "VpcName": {
       "Description": "Name of the VPC - Used to dynamically name the VPC, IGW, Routing Tables and Subnets.",
@@ -18,23 +13,26 @@
       "MinLength": "3",
       "MaxLength": "25",
       "ConstraintDescription": "Must be in ALL CAPS with only DASHES as the separator. Examples: DEV-ECS1, US1, STAGING-US1.",
-      "AllowedPattern": "^([A-Z-\\d]+)"
+      "AllowedPattern": "^([A-Z-\\d]+)",
+      "Default": "VPC-NAME-ENV"
     },
     "VpcCidr": {
       "Description": "The whole VPC CIDR Block. Example: 10.0.0.0/16",
       "Type": "String",
       "ConstraintDescription": "Supports subnet sizes of /16 to /22 only. Input must be a correct CIDR, such as: 10.0.5.0/16",
-      "AllowedPattern": "^((\\d)+.){3}(0)\\/(16|17|18|19|20|21|22)"
+      "AllowedPattern": "^((\\d)+.){3}(0)\\/(16|17|18|19|20|21|22)",
+      "Default": "10.0.0.0/16"
     },
     "SubnetTemplate": {
       "Type": "String",
       "Description": "CF Template URL for creating Public/Private Subnets and NAT ASGs",
-      "Default": "vpc/vpc_subnet.json"
+      "Default": "https://s3.amazonaws.com/cfn-templates-dev/vpc/vpc_subnet.json"
     },
     "VpcPublicSubnetA": {
       "Description": "Public Subnet (A) CIDR. Leave empty to ignore AZ.",
       "Type": "String",
-      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)",
+      "Default": "10.0.100.0/24"
     },
     "VpcPublicSubnetB": {
       "Description": "Public Subnet (B) CIDR. Leave empty to ignore AZ.",
@@ -44,7 +42,8 @@
     "VpcPublicSubnetC": {
       "Description": "Public Subnet (C) CIDR. Leave empty to ignore AZ.",
       "Type": "String",
-      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)",
+      "Default": "10.0.101.0/24"
     },
     "VpcPublicSubnetD": {
       "Description": "Public Subnet (D) CIDR. Leave empty to ignore AZ.",
@@ -59,7 +58,8 @@
     "VpcPrivateSubnetA": {
       "Description": "Private Subnet (A) CIDR. Leave empty to ignore AZ.",
       "Type": "String",
-      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)",
+      "Default": "10.0.200.0/24"
     },
     "VpcPrivateSubnetB": {
       "Description": "Private Subnet (B) CIDR. Leave empty to ignore AZ.",
@@ -69,7 +69,8 @@
     "VpcPrivateSubnetC": {
       "Description": "Private Subnet (C) CIDR. Leave empty to ignore AZ.",
       "Type": "String",
-      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)",
+      "Default": "10.0.201.0/24"
     },
     "VpcPrivateSubnetD": {
       "Description": "Private Subnet (D) CIDR. Leave empty to ignore AZ.",
@@ -84,7 +85,7 @@
     "ResourcesTemplateKey": {
       "Description": "The key of the template for the EB resources and application substack",
       "Type": "String",
-      "Default": "public/vpc/amm-resources.cfn.json"
+      "Default": "https://s3.amazonaws.com/cfn-templates-dev/vpc/resources.json"
     },
     "DatabaseUser": {
       "Default": "admin",
@@ -97,7 +98,7 @@
       "ConstraintDescription": "must begin with a letter and contain only alphanumeric characters."
     },
     "DatabasePassword": {
-      "Default": "0bee082a464",
+      "Default": "admin",
       "NoEcho": "true",
       "Type": "String",
       "Description": "Database admin account password",
@@ -109,17 +110,17 @@
     "DatabaseName": {
       "Description": "The name of the database",
       "Type": "String",
-      "Default": " amediamanager"
+      "Default": "application_db"
     },
     "AppTemplateKey": {
       "Description": "The key of the template for that contains the EB app and env embedded in ResourcesTemplateKey",
       "Type": "String",
-      "Default": "public/vpc/amm-elasticbeanstalk.cfn.json"
+      "Default": "https://s3.amazonaws.com/cfn-templates-dev/vpc/application.json"
     },
     "ApplicationName": {
       "Description": "The name of the Elastic Beanstalk Application",
       "Type": "String",
-      "Default": "aMediaManager-VPC"
+      "Default": "ApplicationName"
     },
     "InstanceType": {
       "Description": "The type of instance to use for EB app servers",
@@ -135,7 +136,7 @@
     "WarKey": {
       "Description": "The key of the application WAR file in the WarBucket",
       "Type": "String",
-      "Default": "public/amediamanager.war"
+      "Default": "https://s3.amazonaws.com/cfn-templates-dev/app.war"
     },
     "KeyName": {
       "Description": "Name of an existing EC2 KeyPair to enable SSH access to the Elastic Beanstalk and Bastion hosts",
@@ -143,7 +144,8 @@
       "MinLength": "1",
       "MaxLength": "255",
       "AllowedPattern": "[\\x20-\\x7E]*",
-      "ConstraintDescription": "can contain only ASCII characters."
+      "ConstraintDescription": "can contain only ASCII characters.",
+      "Default": "keyname"
     },
     "BastionInstanceType": {
       "Description": "Bastion Host EC2 instance type",
@@ -183,27 +185,9 @@
       "Type": "AWS::CloudFormation::Stack",
       "Properties": {
         "TemplateURL": {
-          "Fn::Join": [
-            "",
-            [
-              "http://",
-              {
-                "Ref": "AssetsBucketPrefix"
-              },
-              {
-                "Ref": "AWS::Region"
-              },
-              ".s3.amazonaws.com/",
-              {
-                "Ref": "VPCTemplateKey"
-              }
-            ]
-          ]
+          "Ref": "VPCTemplateKey"
         },
         "Parameters": {
-          "AssetsBucketPrefix": {
-            "Ref": "AssetsBucketPrefix"
-          },
           "VpcPublicSubnetA": {
             "Ref": "VpcPublicSubnetA"
           },
