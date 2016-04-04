@@ -70,6 +70,11 @@
       "Type": "String",
       "Description": "CF Template URL for creating Public/Private Subnets and NAT ASGs",
       "Default": "vpc/vpc_subnet.json"
+    },
+    "AssetsBucketPrefix": {
+      "Description": "The prefix of the S3 bucket where the application WAR is located. A region-specific suffix will be appended, e.g. AssetsBucketPrefix-us-east-1.",
+      "Type": "String",
+      "Default" : "cfn-templates-dev"
     }
   },
   "Conditions": {
