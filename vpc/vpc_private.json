@@ -48,6 +48,7 @@
       "Type": "String",
       "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
     },
+
     "VpcPrivateSubnetA": {
       "Description": "Private Subnet (A) CIDR. Leave empty to ignore AZ.",
       "Type": "String",
@@ -72,8 +73,58 @@
       "Description": "Private Subnet (E) CIDR. Leave empty to ignore AZ.",
       "Type": "String",
       "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
-    }
+    },
 
+    "VpcPrivateSubnetA1": {
+      "Description": "Private Subnet (A) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetB1": {
+      "Description": "Private Subnet (B) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetC1": {
+      "Description": "Private Subnet (C) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetD1": {
+      "Description": "Private Subnet (D) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetE1": {
+      "Description": "Private Subnet (E) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetA2": {
+      "Description": "Private Subnet (A) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetB2": {
+      "Description": "Private Subnet (B) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetC2": {
+      "Description": "Private Subnet (C) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetD2": {
+      "Description": "Private Subnet (D) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    },
+    "VpcPrivateSubnetE2": {
+      "Description": "Private Subnet (E) CIDR. Leave empty to ignore AZ.",
+      "Type": "String",
+      "AllowedPattern": "^(((\\d)+.){3}(0)\\/(18|19|20|21|22|23|24|25)|)"
+    }
   },
   "Conditions": {
     "CreateSubnetA": {
